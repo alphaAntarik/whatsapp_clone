@@ -30,13 +30,14 @@ class TabScreen extends StatelessWidget {
     return BlocBuilder<UserBloc, UserState>(
       builder: (context, state) {
         if (state is UserLoadedState) {
-          if (state.details != "null+null+null+null") {
+          if (state.details != "null+null+null+null+null") {
             return FutureBuilder(
                 future: setdetails(state.details),
                 builder: (context, snapshot1) {
                   if (snapshot1.hasData) {
                     return Scaffold(
                         appBar: AppBar(
+                          automaticallyImplyLeading: false,
                           iconTheme: IconThemeData(
                             color: Colors.white,
                           ),
@@ -62,7 +63,7 @@ class TabScreen extends StatelessWidget {
                                     value: 'Settings',
                                     child: Text('Settings'),
                                     onTap: () {
-                                      Navigator.pushNamed(context,
+                                      Navigator.pushReplacementNamed(context,
                                           SettingsScreen.sesttingsscreenroute);
                                     },
                                   ),

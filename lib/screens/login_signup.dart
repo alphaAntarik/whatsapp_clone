@@ -124,7 +124,7 @@ class _LoginSignUpState extends State<LoginSignUp> {
                               BlocProvider.of<UserBloc>(context).add(
                                   UserLoadedEvent(
                                       user:
-                                          "${user.name}+${user.email}+${user.phonenumber}+${user.profileImage}"));
+                                          "${user.name}+${user.email}+${user.phonenumber}+${user.profileImage}+${user.id}"));
                               Navigator.pushReplacementNamed(
                                   context, TabScreen.tabscreenRoute);
                             } else {
@@ -173,7 +173,7 @@ class _LoginSignUpState extends State<LoginSignUp> {
                                 BlocProvider.of<UserBloc>(context).add(
                                     UserLoadedEvent(
                                         user:
-                                            "${user.name}+${user.email}+${user.phonenumber}+${user.profileImage}"));
+                                            "${user.name}+${user.email}+${user.phonenumber}+${user.profileImage}+${user.id}"));
                                 Navigator.pushReplacementNamed(
                                     context, TabScreen.tabscreenRoute);
                               } else {
@@ -211,7 +211,7 @@ class _LoginSignUpState extends State<LoginSignUp> {
                                 BlocProvider.of<UserBloc>(context).add(
                                     UserLoadedEvent(
                                         user:
-                                            "${user.name}+${user.email}+${user.phonenumber}+${user.profileImage}"));
+                                            "${user.name}+${user.email}+${user.phonenumber}+${user.profileImage}+${user.id}"));
                                 Navigator.pushReplacementNamed(
                                     context, TabScreen.tabscreenRoute);
                               } else {
