@@ -26,8 +26,6 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
       obscureText: obscure,
       style: TextStyle(color: Colors.white),
 
-      // no need to implement validation because it's already implemented in the firebase auth
-      //  validator: context.validator.minLength(8).build(),
       decoration: InputDecoration(
         labelText: 'password',
         labelStyle: TextStyle(color: Colors.white),

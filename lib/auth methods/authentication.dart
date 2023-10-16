@@ -1,8 +1,7 @@
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:whatsapp_clone/models/get_img_model.dart';
+import 'package:whatsapp_clone/appConfig.dart';
 
 import 'dart:convert';
 
@@ -13,8 +12,7 @@ class AuthMethods {
     String id,
   ) async {
     final http.Response response = await http.post(
-      Uri.parse(
-          'https://9dc3-103-101-213-67.ngrok-free.app/whatsapp_users/getbyid'),
+      Uri.parse('${AppConfig.baseUrl}/whatsapp_users/getbyid'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -31,8 +29,7 @@ class AuthMethods {
   Future<UserModel> createAlbum(
       String email, String password, String name, String phonenumber) async {
     final http.Response response = await http.post(
-      Uri.parse(
-          'https://9dc3-103-101-213-67.ngrok-free.app/whatsapp_users/signup'),
+      Uri.parse('${AppConfig.baseUrl}/whatsapp_users/signup'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -40,8 +37,10 @@ class AuthMethods {
         'email': email,
         'name': name,
         'password': password,
+        'profileImage': "",
         'phonenumber': phonenumber,
-        'profileImage': ""
+        // 'lastmessageuserid': "",
+        // 'lastmessage': "",
       }),
     );
 
@@ -52,13 +51,71 @@ class AuthMethods {
     }
   }
 
+  // Future<String> updatelast(String id, String msg, String userid) async {
+  //   final http.Response response = await http.put(
+  //     Uri.parse('${AppConfig.baseUrl}/whatsapp_users/updatelastmessage/${id}'),
+  //     headers: <String, String>{
+  //       'Content-Type': 'application/json; charset=UTF-8',
+  //     },
+  //     body: jsonEncode(<String, String>{
+  //       // 'email': email,
+  //       // 'name': name,
+  //       "lastmessage": msg,
+  //       "lastmessageuserid": userid,
+  //     }),
+  //   );
+
+  //   if (response.statusCode == 200) {
+  //     return "success";
+  //   } else {
+  //     return "error";
+  //   }
+  // }
+
+  Future<List<UserModel>> getAllUsers(String id) async {
+    final http.Response response = await http.post(
+      Uri.parse('${AppConfig.baseUrl}/whatsapp_users/getallusers'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        // 'email': email,
+        // 'name': name,
+        'id': id,
+        // 'password': password,
+      }),
+    );
+    // String url = "${AppConfig.baseUrl}/whatsapp_users/getallusers";
+    // final response = await http.get(Uri.parse(url));
+
+    var responseData = json.decode(response.body);
+
+    //Creating a list to store input data;
+    List<UserModel> users = [];
+    for (var singleUser in responseData) {
+      UserModel user = UserModel(
+        id: singleUser["_id"],
+        name: singleUser["name"],
+        email: singleUser["email"],
+        password: singleUser["password"],
+        phonenumber: singleUser["phonenumber"],
+        profileImage: singleUser["profileImage"],
+        // lastmessage: singleUser["lastmessage"],
+        // lastmessageuserid: singleUser["lastmessageuserid"],
+      );
+
+      //Adding user to the list.
+      users.add(user);
+    }
+    return users;
+  }
+
   Future<UserModel> loginWithPhone(
     String phonenumber,
     String password,
   ) async {
     final http.Response response = await http.post(
-      Uri.parse(
-          'https://9dc3-103-101-213-67.ngrok-free.app/whatsapp_users/loginPhoneNumber'),
+      Uri.parse('${AppConfig.baseUrl}/whatsapp_users/loginPhoneNumber'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -79,7 +136,7 @@ class AuthMethods {
 
   Future<String> uploadPhoto(File? imagefile) async {
     final url = Uri.parse(
-        'https://9dc3-103-101-213-67.ngrok-free.app/whatsapp_users/imageUpload'); // Replace with your API endpoint
+        '${AppConfig.baseUrl}/whatsapp_users/imageUpload'); // Replace with your API endpoint
 
     var request = http.MultipartRequest(
       'POST',
@@ -101,7 +158,7 @@ class AuthMethods {
 
     // final http.Response response = await http.post(
     //   Uri.parse(
-    //       'https://9dc3-103-101-213-67.ngrok-free.app/whatsapp_users/imageUpload'),
+    //       '${AppConfig.baseUrl}/whatsapp_users/imageUpload'),
     //   headers: <String, String>{
     //     'Content-Type': 'application/json; charset=UTF-8',
     //   },
@@ -124,8 +181,7 @@ class AuthMethods {
 
   Future<UserModel> updatePhoto(String id, File? img) async {
     final http.Response response = await http.put(
-      Uri.parse(
-          'https://9dc3-103-101-213-67.ngrok-free.app/whatsapp_users/update/${id}'),
+      Uri.parse('${AppConfig.baseUrl}/whatsapp_users/update/${id}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -148,8 +204,7 @@ class AuthMethods {
     String password,
   ) async {
     final http.Response response = await http.post(
-      Uri.parse(
-          'https://9dc3-103-101-213-67.ngrok-free.app/whatsapp_users/loginEmail'),
+      Uri.parse('${AppConfig.baseUrl}/whatsapp_users/loginEmail'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -168,12 +223,12 @@ class AuthMethods {
     }
   }
 
-  Future<String> loginOut() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString("email", "");
-    prefs.setString("name", "");
-    prefs.setString("phonenumber", "");
-    prefs.setString("profileImage", "");
-    return 'Success';
-  }
+  // Future<String> loginOut() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   prefs.setString("email", "");
+  //   prefs.setString("name", "");
+  //   prefs.setString("phonenumber", "");
+  //   prefs.setString("profileImage", "");
+  //   return 'Success';
+  // }
 }

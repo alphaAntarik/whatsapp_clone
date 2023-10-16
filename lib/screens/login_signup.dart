@@ -11,7 +11,6 @@ import 'package:whatsapp_clone/widgets/form_body.dart';
 import 'package:whatsapp_clone/widgets/gap.dart';
 import 'package:whatsapp_clone/widgets/passwordFormField.dart';
 
-import '../bloc/user_bloc.dart';
 import '../widgets/email_form_field.dart';
 
 import '../widgets/logo.dart';
@@ -33,13 +32,91 @@ class _LoginSignUpState extends State<LoginSignUp> {
   TextEditingController phonenumber = TextEditingController();
   TextEditingController password = TextEditingController();
   final focus = FocusNode();
+  bool _isloading = false;
 
   final formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
-    // bool obscure = true;
+    void loginemail(String email, String password) async {
+      setState(() {
+        _isloading = true;
+      });
+      UserModel user = await AuthMethods().loginWithEmail(
+        email,
+        password,
+      );
 
-    // final obscure = useState(true);
+      if (user.email != null) {
+        final prefs = await SharedPreferences.getInstance();
+        setState(() {
+          // BlocProvider.of<UserBloc>(context)
+          //     .add(UserLoadedEvent(user: "${user.id}"));
+          prefs.setString("id", "${user.id}");
+          Navigator.pushReplacementNamed(context, TabScreen.tabscreenRoute);
+          _isloading = false;
+        });
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Invalid gmail or password")));
+        setState(() {
+          _isloading = false;
+        });
+      }
+    }
+
+    void loginPhone(String phonenumber, String password) async {
+      setState(() {
+        _isloading = true;
+      });
+      UserModel user = await AuthMethods().loginWithPhone(
+        phonenumber,
+        password,
+      );
+
+      if (user.email != null) {
+        final prefs = await SharedPreferences.getInstance();
+        setState(() {
+          // BlocProvider.of<UserBloc>(context)
+          //     .add(UserLoadedEvent(user: "${user.id}"));
+          prefs.setString("id", "${user.id}");
+          Navigator.pushReplacementNamed(context, TabScreen.tabscreenRoute);
+          _isloading = false;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Invalid phone number or password")));
+        setState(() {
+          _isloading = false;
+        });
+      }
+    }
+
+    void signup(
+        String email, String password, String name, String phonenumber) async {
+      setState(() {
+        _isloading = true;
+      });
+      UserModel user =
+          await AuthMethods().createAlbum(email, password, name, phonenumber);
+
+      if (user.email != null) {
+        final prefs = await SharedPreferences.getInstance();
+        setState(() {
+          // BlocProvider.of<UserBloc>(context)
+          //     .add(UserLoadedEvent(user: "${user.id}"));
+          prefs.setString("id", "${user.id}");
+          Navigator.pushReplacementNamed(context, TabScreen.tabscreenRoute);
+          _isloading = false;
+        });
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Invalid details")));
+        setState(() {
+          _isloading = false;
+        });
+      }
+    }
 
     return Scaffold(
       backgroundColor: Color(0xFF190014),
@@ -55,11 +132,7 @@ class _LoginSignUpState extends State<LoginSignUp> {
               padding: EdgeInsets.all(8.0),
               child: Slogan(),
             ),
-            // const Spacer(),
-            // if (islogin == true)
-            //   SizedBox(
-            //     height: MediaQuery.of(context).size.height * 0.08,
-            //   ),
+
             Container(
               height: MediaQuery.of(context).size.height * 0.4,
               alignment: Alignment.bottomCenter,
@@ -105,40 +178,20 @@ class _LoginSignUpState extends State<LoginSignUp> {
                     children: [
                       if (islogin == false)
                         ElevatedButton(
-                          onPressed: () async {
-                            UserModel user = await AuthMethods().createAlbum(
-                                email.text.trim(),
-                                password.text.trim(),
-                                name.text.trim(),
-                                phonenumber.text.trim());
-
-                            if (user.email != null) {
-                              // final prefs =
-                              //     await SharedPreferences.getInstance();
-                              // prefs.setString("email", user.email ?? "");
-                              // prefs.setString("name", user.name ?? "");
-                              // prefs.setString(
-                              //     "phonenumber", user.phonenumber ?? "");
-                              // prefs.setString(
-                              //     "profileImage", user.profileImage!);
-                              BlocProvider.of<UserBloc>(context).add(
-                                  UserLoadedEvent(
-                                      user:
-                                          "${user.name}+${user.email}+${user.phonenumber}+${user.profileImage}+${user.id}"));
-                              Navigator.pushReplacementNamed(
-                                  context, TabScreen.tabscreenRoute);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Invalid details")));
-                            }
-                            //  context.router.push(const SignUpRoute());
+                          onPressed: () {
+                            signup(email.text.trim(), password.text.trim(),
+                                name.text, phonenumber.text.trim());
                           },
-                          child: Text(
-                            "Signup",
-                            style: TextStyle(
-                              color: Color(0xFF190014),
-                            ),
-                          ),
+                          child: _isloading
+                              ? CircularProgressIndicator(
+                                  color: Color(0xFF190014),
+                                )
+                              : Text(
+                                  "Signup",
+                                  style: TextStyle(
+                                    color: Color(0xFF190014),
+                                  ),
+                                ),
                         ),
                       TextButton(
                           onPressed: () {
@@ -151,83 +204,29 @@ class _LoginSignUpState extends State<LoginSignUp> {
                               : "Already have an account")),
                       if (islogin == true)
                         FilledButton(
-                          onPressed: () async {
+                          onPressed: () {
                             if (isloginwithphone) {
-                              UserModel user =
-                                  await AuthMethods().loginWithPhone(
-                                //   email.text.trim(),
-                                //   name.text.trim(),
+                              loginPhone(
                                 phonenumber.text.trim(),
                                 password.text.trim(),
                               );
-
-                              if (user.email != null) {
-                                // final prefs =
-                                //     await SharedPreferences.getInstance();
-                                // prefs.setString("email", user.email ?? "");
-                                // prefs.setString("name", user.name ?? "");
-                                // prefs.setString(
-                                //     "phonenumber", user.phonenumber ?? "");
-                                // prefs.setString(
-                                //     "profileImage", user.profileImage!);
-                                BlocProvider.of<UserBloc>(context).add(
-                                    UserLoadedEvent(
-                                        user:
-                                            "${user.name}+${user.email}+${user.phonenumber}+${user.profileImage}+${user.id}"));
-                                Navigator.pushReplacementNamed(
-                                    context, TabScreen.tabscreenRoute);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            "Invalid phone number or password")));
-                              }
                             } else {
-                              UserModel user =
-                                  await AuthMethods().loginWithEmail(
+                              loginemail(
                                 email.text.trim(),
                                 password.text.trim(),
-                                //   name.text.trim(),
-                                //  phonenumber.text.trim()
                               );
-                              // final prefs =
-                              //     await SharedPreferences.getInstance();
-                              // prefs.setString("email", user.email ?? "");
-                              // prefs.setString("name", user.name ?? "");
-                              // prefs.setString(
-                              //     "phonenumber", user.phonenumber ?? "");
-                              // prefs.setString(
-                              //     "profileImage", user.profileImage!);
-
-                              if (user.email != null) {
-                                // final prefs =
-                                //     await SharedPreferences.getInstance();
-                                // prefs.setString("email", user.email ?? "");
-                                // prefs.setString("name", user.name ?? "");
-                                // prefs.setString(
-                                //     "phonenumber", user.phonenumber ?? "");
-                                // prefs.setString(
-                                //     "profileImage", user.profileImage!);
-                                BlocProvider.of<UserBloc>(context).add(
-                                    UserLoadedEvent(
-                                        user:
-                                            "${user.name}+${user.email}+${user.phonenumber}+${user.profileImage}+${user.id}"));
-                                Navigator.pushReplacementNamed(
-                                    context, TabScreen.tabscreenRoute);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content:
-                                            Text("Invalid gmail or password")));
-                              }
                             }
                           },
-                          child: Text(
-                            "Login",
-                            style: TextStyle(
-                              color: Color(0xFF190014),
-                            ),
-                          ),
+                          child: _isloading
+                              ? CircularProgressIndicator(
+                                  color: Color(0xFF190014),
+                                )
+                              : Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    color: Color(0xFF190014),
+                                  ),
+                                ),
                         ),
                     ],
                   ),
