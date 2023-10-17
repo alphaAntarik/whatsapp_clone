@@ -205,9 +205,8 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   // Adjust to your server's URL
-  final socket = io('${AppConfig.baseUrl}', <String, dynamic>{
+  final socket = io('${AppConfig.baseUrl}/chat', <String, dynamic>{
     'transports': ['websocket'],
-    'autoConnect': false,
   });
 
   TextEditingController messageController = TextEditingController();
@@ -260,18 +259,8 @@ class _ChatScreenState extends State<ChatScreen> {
           typeOfMessage: data["typeOfMessage"],
           id: data["_id"],
         ));
-        // if (widget.senderId == data["from"]) {
-        //   await AuthMethods()
-        //       .updatelast(data["to"], data["message"], data["from"]);
-        // }
       });
     });
-
-    // _scrollController.animateTo(
-    //   _scrollController.position.maxScrollExtent,
-    //   duration: Duration(milliseconds: 300),
-    //   curve: Curves.easeOut,
-    // );
   }
 
   void sendChatMessage() async {

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whatsapp_clone/auth%20methods/authentication.dart';
 
@@ -20,6 +21,34 @@ class _ShowImageState extends State<ShowImage> {
   Future<String?> setname() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString("id");
+  }
+
+  File? img;
+
+  Future _cropImage(File? imagefile) async {
+    if (imagefile != null) {
+      CroppedFile? cropped = await ImageCropper()
+          .cropImage(sourcePath: imagefile.path, aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio3x2,
+        CropAspectRatioPreset.original,
+        CropAspectRatioPreset.ratio4x3,
+        CropAspectRatioPreset.ratio16x9
+      ], uiSettings: [
+        AndroidUiSettings(
+            toolbarTitle: 'Crop',
+            cropGridColor: Colors.black,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        IOSUiSettings(title: 'Crop')
+      ]);
+
+      if (cropped != null) {
+        setState(() {
+          img = File(cropped.path);
+        });
+      }
+    }
   }
 
   @override
@@ -60,7 +89,7 @@ class _ShowImageState extends State<ShowImage> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(20.0),
                         child: Image.file(
-                          widget.imagefile!,
+                          img == null ? widget.imagefile! : img!,
                           width: 300,
                           height: 300,
                           fit: BoxFit.cover,
@@ -82,8 +111,19 @@ class _ShowImageState extends State<ShowImage> {
                                 )),
                             IconButton(
                                 onPressed: () {
-                                  photo_uploaded(
-                                      widget.imagefile, snapshot.data!);
+                                  _cropImage(widget.imagefile);
+                                },
+                                icon: Icon(
+                                  Icons.crop,
+                                  size: 30,
+                                  color: Colors.white,
+                                )),
+                            IconButton(
+                                onPressed: () {
+                                  img == null
+                                      ? photo_uploaded(
+                                          widget.imagefile, snapshot.data!)
+                                      : photo_uploaded(img, snapshot.data!);
                                 },
                                 icon: Icon(
                                   Icons.check,

@@ -53,6 +53,7 @@ class _LoginSignUpState extends State<LoginSignUp> {
           // BlocProvider.of<UserBloc>(context)
           //     .add(UserLoadedEvent(user: "${user.id}"));
           prefs.setString("id", "${user.id}");
+          prefs.setString("name", "${user.name}");
           Navigator.pushReplacementNamed(context, TabScreen.tabscreenRoute);
           _isloading = false;
         });
@@ -80,6 +81,7 @@ class _LoginSignUpState extends State<LoginSignUp> {
           // BlocProvider.of<UserBloc>(context)
           //     .add(UserLoadedEvent(user: "${user.id}"));
           prefs.setString("id", "${user.id}");
+          prefs.setString("name", "${user.name}");
           Navigator.pushReplacementNamed(context, TabScreen.tabscreenRoute);
           _isloading = false;
         });
@@ -106,6 +108,7 @@ class _LoginSignUpState extends State<LoginSignUp> {
           // BlocProvider.of<UserBloc>(context)
           //     .add(UserLoadedEvent(user: "${user.id}"));
           prefs.setString("id", "${user.id}");
+          prefs.setString("name", "${user.name}");
           Navigator.pushReplacementNamed(context, TabScreen.tabscreenRoute);
           _isloading = false;
         });
