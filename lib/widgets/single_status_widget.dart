@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:whatsapp_clone/appConfig.dart';
 
 import '../models/status_model.dart';
 
@@ -18,25 +19,33 @@ class SingleStatus extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            child: Wrap(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    status.status!,
-                    style: TextStyle(color: Colors.black),
+            child: status.type == 'text'
+                ? Wrap(
+                    children: [
+                      Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            status.status!,
+                            style: TextStyle(color: Colors.black),
+                          ))
+                    ],
+                    alignment: WrapAlignment
+                        .center, // Controls text alignment within the container
+                    runAlignment: WrapAlignment
+                        .center, // Controls text alignment in a new line
+                    direction: Axis.horizontal, // Text direction
+                    spacing: 8.0, // Spacing between items (adjust as needed)
+                    runSpacing: 8.0, // Spacin
+                    // textDirection: TextDirection.ltr,
+                  )
+                : ClipOval(
+                    child: Image.network(
+                      '${AppConfig.baseUrl}/whatsapp_users/images/${status.status}',
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                )
-              ],
-              alignment: WrapAlignment
-                  .center, // Controls text alignment within the container
-              runAlignment:
-                  WrapAlignment.center, // Controls text alignment in a new line
-              direction: Axis.horizontal, // Text direction
-              spacing: 8.0, // Spacing between items (adjust as needed)
-              runSpacing: 8.0, // Spacin
-              // textDirection: TextDirection.ltr,
-            ),
             width: 70, // Set the width of the circular container
             height: 70, // Set the height of the circular container
             decoration: BoxDecoration(
@@ -59,6 +68,7 @@ class SingleStatus extends StatelessWidget {
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
+                      backgroundColor: Color(0xFF190014),
                       fontWeight: FontWeight.bold),
                 ),
               ),
@@ -67,7 +77,8 @@ class SingleStatus extends StatelessWidget {
                 style: TextStyle(
                     color: Colors.grey,
                     fontSize: 10,
-                    fontWeight: FontWeight.normal),
+                    fontWeight: FontWeight.normal,
+                    backgroundColor: Color(0xFF190014)),
               )
             ],
           ),

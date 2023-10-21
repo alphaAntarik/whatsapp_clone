@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:whatsapp_clone/appConfig.dart';
 
 import 'dart:convert';
@@ -220,6 +223,30 @@ class AuthMethods {
       return UserModel.fromJson(json.decode(response.body));
     } else {
       throw Exception('Failed to create album.');
+    }
+  }
+
+  Future<bool> isPermissionGranted() async {
+    final PermissionStatus storagePermissionStatus =
+        await Permission.storage.status;
+    if (!storagePermissionStatus.isGranted) {
+      await Permission.storage.request();
+      if (await Permission.storage.status.isGranted) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<String> getPath() async {
+    final Directory? tempDir = await getExternalStorageDirectory();
+    final filePath = Directory("${tempDir!.path}/files");
+
+    if (await filePath.exists()) {
+      return filePath.path;
+    } else {
+      await filePath.create(recursive: true);
+      return filePath.path;
     }
   }
 

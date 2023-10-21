@@ -5,6 +5,7 @@ class StatusModel {
   String? dateonly;
   String? timestamp;
   String? name;
+  String? type;
 
   StatusModel(
       {this.id,
@@ -12,6 +13,7 @@ class StatusModel {
       this.status,
       this.dateonly,
       this.timestamp,
+      this.type,
       this.name});
 
   StatusModel.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,9 @@ class StatusModel {
     }
     if (json["user_id"] is String) {
       userId = json["user_id"];
+    }
+    if (json["type"] is String) {
+      type = json["type"];
     }
     if (json["name"] is String) {
       name = json["name"];
@@ -41,6 +46,7 @@ class StatusModel {
     _data["user_id"] = userId;
     _data["status"] = status;
     _data["dateonly"] = dateonly;
+    _data["type"] = type;
     _data["timestamp"] = timestamp;
     _data["name"] = name;
     return _data;

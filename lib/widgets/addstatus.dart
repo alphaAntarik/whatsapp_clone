@@ -20,10 +20,22 @@ class AddStatus extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () {
+            Navigator.of(context).pop(); // Close the dialog
+          },
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: Color(0xFF190014)),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
             onPressedCallback();
             Navigator.of(context).pop(); // Close the dialog
           },
-          child: Text('OK'),
+          child: Text(
+            'OK',
+            style: TextStyle(color: Color(0xFF190014)),
+          ),
         ),
       ],
     );

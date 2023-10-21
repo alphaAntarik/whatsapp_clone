@@ -7,6 +7,7 @@ import 'package:whatsapp_clone/appConfig.dart';
 import 'package:whatsapp_clone/auth%20methods/authentication.dart';
 import 'package:whatsapp_clone/models/chat_model.dart';
 import 'package:whatsapp_clone/models/user_model.dart';
+import 'package:whatsapp_clone/widgets/camera_gallery.dart';
 
 import '../auth methods/chat_service.dart';
 import '../widgets/new_chat.dart';
@@ -196,9 +197,14 @@ import 'package:socket_io_client/socket_io_client.dart';
 class ChatScreen extends StatefulWidget {
   final UserModel usermodel;
   final String? senderId;
+  // final Function(String) sendmessage;
 
-  const ChatScreen(
-      {super.key, required this.usermodel, required this.senderId});
+  const ChatScreen({
+    super.key,
+    required this.usermodel,
+    required this.senderId,
+    //  required this.sendmessage,
+  });
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
@@ -249,17 +255,25 @@ class _ChatScreenState extends State<ChatScreen> {
     // Listen for new chat messages
     socket.on('newChatMessage', (data1) {
       final data = data1 as Map<String, dynamic>;
-      setState(() async {
-        chats.add(ChatModel(
-          from: data["from"],
-          to: data["to"],
-          message: data["message"],
-          dateonly: data["dateonly"],
-          timestamp: data["timestamp"],
-          typeOfMessage: data["typeOfMessage"],
-          id: data["_id"],
-        ));
-      });
+      _handleNewStatus(data);
+      // setState(() {
+      //   chats.add(ChatModel(
+      //     from: data["from"],
+      //     to: data["to"],
+      //     message: data["message"],
+      //     dateonly: data["dateonly"],
+      //     timestamp: data["timestamp"],
+      //     typeOfMessage: data["typeOfMessage"],
+      //     id: data["_id"],
+      //   ));
+      // });
+    });
+  }
+
+  void _handleNewStatus(Map<String, dynamic> data) {
+    setState(() {
+      final newStatus = ChatModel.fromJson(data);
+      chats.add(newStatus); // Add new status at the beginning
     });
   }
 
@@ -277,7 +291,7 @@ class _ChatScreenState extends State<ChatScreen> {
         "to": widget.usermodel.id,
         "message": message,
         "dateonly": formattedDate,
-        // "timestamp": formattedTime,
+        'timestamp': DateTime.now().toString(),
         "typeOfMessage": "text",
       });
       // await AuthMethods()
@@ -289,6 +303,107 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    void _showCredentialsBottomSheet(UserModel usermodel) {
+      showModalBottomSheet(
+        backgroundColor: Color(0xFF27001F),
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.3,
+            child: Column(
+              children: [
+                Padding(
+                    padding: EdgeInsets.only(
+                      top: 25,
+                    ),
+                    child: Text("Choose any",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+
+                          // height: 0,
+                        ))),
+                Divider(
+                  thickness: 2,
+                  color: Colors.grey,
+                ),
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.2,
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Camera_Gallery(
+                            icon: Icons.camera,
+                            label: 'Camera',
+                            isStatus: false,
+                            isChat: true,
+                            to: usermodel.id!,
+                          ),
+                          // SizedBox(
+                          //   width: MediaQuery.of(context).size.width * 0.05,
+                          // ),
+                          Camera_Gallery(
+                            icon: Icons.photo,
+                            label: 'Gallery',
+                            isStatus: false,
+                            isChat: true,
+                            to: usermodel.id!,
+                          ),
+                          //  SizedBox(
+                          //   width: MediaQuery.of(context).size.width * 0.05,
+                          // ),
+                          Camera_Gallery(
+                            icon: Icons.video_camera_back,
+                            label: 'Capture Video',
+                            isStatus: false,
+                            isChat: true,
+                            to: usermodel.id!,
+                          ),
+                        ],
+                      ),
+                      // SizedBox(
+                      //   height: MediaQuery.of(context).size.height * 0.1,
+                      // ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Camera_Gallery(
+                            icon: Icons.video_camera_back,
+                            label: 'Video',
+                            isStatus: false,
+                            isChat: true,
+                            to: usermodel.id!,
+                          ),
+                          Camera_Gallery(
+                            icon: Icons.note_add,
+                            label: 'Documents',
+                            isStatus: false,
+                            isChat: true,
+                            to: usermodel.id!,
+                          ),
+                          Camera_Gallery(
+                            icon: Icons.picture_as_pdf,
+                            label: 'Pdf',
+                            isStatus: false,
+                            isChat: true,
+                            to: usermodel.id!,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        },
+      );
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -302,35 +417,57 @@ class _ChatScreenState extends State<ChatScreen> {
         backgroundColor: Color(0xFF190014),
       ),
       backgroundColor: Color(0xFF190014),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: ListView.builder(
-              // controller: _scrollController,
-              itemCount: chats.length,
-              itemBuilder: (context, index) {
-                final chat = chats[index];
-                return ListTile(
-                  title: Align(
-                    alignment: widget.senderId == chat.from
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: NewChat(
-                      message: chat,
-                      user: widget.usermodel,
-                    ),
-                  ),
-                );
-              },
+          if (widget.usermodel.profileImage != "")
+            Opacity(
+              opacity: 0.3,
+              child: Image.network(
+                '${AppConfig.baseUrl}/whatsapp_users/images/${widget.usermodel.profileImage}',
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    style: TextStyle(color: Colors.white),
+          Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  // controller: _scrollController,
+                  itemCount: chats.length,
+                  itemBuilder: (context, index) {
+                    final chat = chats[index];
+
+                    return ListTile(
+                      title: Align(
+                        alignment: widget.senderId == chat.from
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: NewChat(
+                          message: chat,
+                          user: widget.usermodel,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        _showCredentialsBottomSheet(widget.usermodel);
+                      },
+                    ),
+                    Expanded(
+                      child: TextFormField(
+                        style: TextStyle(color: Colors.white),
 //                           controller: _messageController,
 //                           onTap: () {
 //                             setState(() {
@@ -341,31 +478,36 @@ class _ChatScreenState extends State<ChatScreen> {
 //                               );
 //                             });
 //                           },
-                    decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Colors.white, width: 2.0),
-                          borderRadius: BorderRadius.circular(6.0),
-                        ),
-                        hintText: "Write message...",
-                        hintStyle: TextStyle(color: Colors.white),
-                        border: InputBorder.none),
+                        decoration: InputDecoration(
+                            fillColor: Colors.white,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: Colors.white, width: 2.0),
+                              borderRadius: BorderRadius.circular(6.0),
+                            ),
+                            hintText: "Write message...",
+                            hintStyle: TextStyle(color: Colors.white),
+                            border: InputBorder.none),
 
-                    controller: messageController,
-                    // decoration: InputDecoration(labelText: 'Message'),
-                  ),
+                        controller: messageController,
+                        // decoration: InputDecoration(labelText: 'Message'),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.send,
+                        color: Colors.white,
+                      ),
+                      onPressed: sendChatMessage,
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: sendChatMessage,
-                ),
-              ],
-            ),
+              ),
+              Padding(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom))
+            ],
           ),
-          Padding(
-              padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom))
         ],
       ),
     );

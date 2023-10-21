@@ -18,6 +18,14 @@ class _ConversationListState extends State<ConversationList> {
 //   return prefs.getString("id");
 // }
 
+  // String lastchat = '';
+  // // Define a callback function to update lastchat
+  // void updateLastChat(String data) {
+  //   setState(() {
+  //     lastchat = data;
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -34,6 +42,7 @@ class _ConversationListState extends State<ConversationList> {
                 builder: (context) => ChatScreen(
                       usermodel: widget.user,
                       senderId: senderId,
+                      //  sendmessage: updateLastChat,
                     )));
       },
       child: Container(
@@ -76,7 +85,7 @@ class _ConversationListState extends State<ConversationList> {
                             height: 6,
                           ),
                           // Text(
-                          //   widget.user.lastmessage ?? "",
+                          //   lastchat,
                           //   style: TextStyle(
                           //     fontSize: 13,
                           //     color: Colors.grey.shade600,

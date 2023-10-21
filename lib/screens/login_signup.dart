@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:whatsapp_clone/auth%20methods/authentication.dart';
@@ -9,6 +9,7 @@ import 'package:whatsapp_clone/screens/tabscreen.dart';
 
 import 'package:whatsapp_clone/widgets/form_body.dart';
 import 'package:whatsapp_clone/widgets/gap.dart';
+import 'package:whatsapp_clone/widgets/mobile_form_field.dart';
 import 'package:whatsapp_clone/widgets/passwordFormField.dart';
 
 import '../widgets/email_form_field.dart';
@@ -29,10 +30,16 @@ class _LoginSignUpState extends State<LoginSignUp> {
   bool isloginwithphone = false;
   TextEditingController email = TextEditingController();
   TextEditingController name = TextEditingController();
-  TextEditingController phonenumber = TextEditingController();
+  //TextEditingController phonenumber = TextEditingController();
   TextEditingController password = TextEditingController();
   final focus = FocusNode();
   bool _isloading = false;
+  String pnumber = '';
+  void setnumber(String number) {
+    setState(() {
+      pnumber = number;
+    });
+  }
 
   final formKey = GlobalKey<FormState>();
 
@@ -157,12 +164,15 @@ class _LoginSignUpState extends State<LoginSignUp> {
                       type: TextInputType.name,
                     ),
                   if (islogin == false || isloginwithphone)
-                    EmailFormField(
-                      controller: phonenumber,
-                      icon: const Icon(Icons.phone_rounded),
-                      labeltext: 'phonenumber',
-                      type: TextInputType.number,
+                    MovileFormField(
+                      setNumber: setnumber,
                     ),
+                  // EmailFormField(
+                  //   controller: phonenumber,
+                  //   icon: const Icon(Icons.phone_rounded),
+                  //   labeltext: 'phonenumber',
+                  //   type: TextInputType.number,
+                  // ),
                   PasswordFormField(
                     controller: password,
                     //  obscure: obscure,
@@ -183,7 +193,7 @@ class _LoginSignUpState extends State<LoginSignUp> {
                         ElevatedButton(
                           onPressed: () {
                             signup(email.text.trim(), password.text.trim(),
-                                name.text, phonenumber.text.trim());
+                                name.text, pnumber);
                           },
                           child: _isloading
                               ? CircularProgressIndicator(
@@ -210,7 +220,7 @@ class _LoginSignUpState extends State<LoginSignUp> {
                           onPressed: () {
                             if (isloginwithphone) {
                               loginPhone(
-                                phonenumber.text.trim(),
+                                pnumber,
                                 password.text.trim(),
                               );
                             } else {
